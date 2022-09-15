@@ -15,7 +15,6 @@ public class LocalThreadTest {
 
     public static String getValue () {
 
-
         return temp.get();
     }
 

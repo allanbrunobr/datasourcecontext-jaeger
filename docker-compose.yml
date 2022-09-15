@@ -1,0 +1,33 @@
+version: '3.9'
+
+services:
+  ds1:
+    image: postgres
+    container_name: ds1
+    restart: always
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pw
+      - POSTGRES_DB=DBdb1
+    ports:
+      - "5431:5432"
+
+  ds2:
+    image: postgres
+    container_name: ds2
+    restart: always
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pw
+      - POSTGRES_DB:DBdb2
+    ports:
+      - "5432:5432"
+
+  psql:
+    image: dpage/pgadmin4:latest
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=a@a.com
+      - PGADMIN_DEFAULT_PASSWORD=pw
+    ports:
+      - "82:80"
