@@ -12,7 +12,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="jaeger-client" target="1.8" />
+      <module name="jaeger-client" target="16" />
       <module name="jaeger-server" target="1.8" />
     </bytecodeTargetLevel>
   </component>
