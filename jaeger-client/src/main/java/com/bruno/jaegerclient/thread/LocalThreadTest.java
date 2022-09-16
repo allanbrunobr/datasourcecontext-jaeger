@@ -1,4 +1,4 @@
-package com.bruno.jaegerclient.localthread;
+package com.bruno.jaegerclient.thread;
 
 public class LocalThreadTest {
 

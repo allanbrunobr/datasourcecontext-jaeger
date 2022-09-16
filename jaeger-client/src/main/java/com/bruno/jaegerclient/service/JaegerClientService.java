@@ -1,11 +1,9 @@
 package com.bruno.jaegerclient.service;
 
-import com.bruno.jaegerclient.localthread.LocalThreadTest;
+import com.bruno.jaegerclient.thread.LocalThreadTest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
-import java.text.SimpleDateFormat;
 
 @Service
 public class JaegerClientService {
@@ -17,10 +15,9 @@ public class JaegerClientService {
     }
 
     public Mono<String> get(Integer id) {
-        String y = LocalThreadTest.getValue();
 
         return webClient.get()
-                .uri("http://localhost:8082/jaeger/server/" + Integer.valueOf(y))
+                .uri("http://localhost:8082/jaeger/server/" + Integer.valueOf(id))
                 .retrieve()
                 .bodyToMono(String.class);
     }
