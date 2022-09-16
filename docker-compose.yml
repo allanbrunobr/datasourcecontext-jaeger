@@ -31,3 +31,6 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=pw
     ports:
       - "82:80"
+
+#  Saber o endereço do postgres no docker:
+#  docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' container_name_or_id
