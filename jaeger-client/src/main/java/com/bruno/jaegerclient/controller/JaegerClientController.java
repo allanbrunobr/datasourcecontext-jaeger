@@ -4,7 +4,6 @@ import static org.springframework.web.servlet.function.RouterFunctions.route;
 
 import com.bruno.jaegerclient.record.Customer;
 import com.bruno.jaegerclient.service.JaegerClientService;
-import com.bruno.jaegerclient.thread.LocalThreadTest;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,7 +28,7 @@ public class JaegerClientController {
             return jaegerClientService.get(id);
 
     }
- @Bean
+    @Bean
     RouterFunction<ServerResponse> routes (JdbcTemplate template){
         return route()
             .GET("/customers",  request -> {
