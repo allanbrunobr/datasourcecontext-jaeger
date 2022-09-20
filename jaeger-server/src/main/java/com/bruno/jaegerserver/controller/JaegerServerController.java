@@ -16,8 +16,8 @@ public class JaegerServerController {
     private final JaegerServerService jaegerServerService;
 
     @GetMapping("/{id}")
-    public Mono<String> get(@PathVariable("id") Integer id){
-
+//    public Mono<String> get(@PathVariable("id") Integer id){
+    public String get(@PathVariable("id") Integer id){
         return jaegerServerService.get(id);
 
     }

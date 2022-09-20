@@ -24,16 +24,12 @@ public class JaegerClientController {
     private final JaegerClientService jaegerClientService;
 
     @GetMapping("/{id}")
-    public Mono<String> get(@PathVariable("id") Integer id){
-        LocalThreadTest.setValue(1);
-
-
-        return jaegerClientService.get(id);
+//    public Mono<String> get(@PathVariable("id") Integer id){
+    public String get(@PathVariable("id") Integer id){
+            return jaegerClientService.get(id);
 
     }
-
-
-    @Bean
+ @Bean
     RouterFunction<ServerResponse> routes (JdbcTemplate template){
         return route()
             .GET("/customers",  request -> {

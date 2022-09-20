@@ -24,7 +24,7 @@ public class UnicredDataSource extends AbstractRoutingDataSource {
     var autenticacao = SecurityContextHolder.getContext().getAuthentication();
     if(autenticacao != null && autenticacao.getPrincipal() instanceof MultiDSUnicred user){
       var tenantId = user.getTenantId();
-      System.out.println("the tenantId is: " + tenantId);
+      logger.info("the tenantId is: " + tenantId);
       return tenantId;
     }
     return null;

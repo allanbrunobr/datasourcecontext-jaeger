@@ -9,12 +9,10 @@ public class LocalThreadTest {
         if (value == null) {
             throw new NullPointerException();
         }
-
         temp.set(value.toString());
     }
 
     public static String getValue () {
-
         return temp.get();
     }
 
