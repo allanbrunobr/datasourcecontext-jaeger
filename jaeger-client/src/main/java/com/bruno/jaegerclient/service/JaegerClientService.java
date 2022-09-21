@@ -1,10 +1,6 @@
 package com.bruno.jaegerclient.service;
 
-import com.bruno.jaegerclient.thread.LocalThreadTest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -23,7 +19,7 @@ public class JaegerClientService {
 //        return restTemplate.getForObject(uri, String.class);
 
       return webClient.get()
-                .uri("http://localhost:8082/jaeger/server/" + Integer.valueOf(id))
+                .uri("http://localhost:8082/jaeger/server/" + id)
                 .retrieve()
                 .bodyToMono(String.class);
     }

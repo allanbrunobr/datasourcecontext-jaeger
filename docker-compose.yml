@@ -1,4 +1,4 @@
-version: '3.9'
+version: '3.8'
 
 services:
   ds1:
@@ -17,20 +17,49 @@ services:
     container_name: ds2
     restart: always
     environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=pw
-      - POSTGRES_DB:DBdb2
+     - POSTGRES_USER=user
+     - POSTGRES_PASSWORD=pw
+     - POSTGRES_DB:DBdb2
     ports:
-      - "5432:5432"
-
+     - "5432:5432"
+  
   psql:
     image: dpage/pgadmin4:latest
     restart: always
     environment:
-      - PGADMIN_DEFAULT_EMAIL=a@a.com
-      - PGADMIN_DEFAULT_PASSWORD=pw
+     - PGADMIN_DEFAULT_EMAIL=a@a.com
+     - PGADMIN_DEFAULT_PASSWORD=pw
     ports:
-      - "82:80"
+     - "82:80"
 
-#  Saber o endereço do postgres no docker:
-#  docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' container_name_or_id
+  coop4022:
+    image: mcr.microsoft.com/mssql/server:latest
+    container_name: sqlserver1
+    environment:
+      SA_PASSWORD: "@Un1cr3D"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "15785:1433"
+
+  coop505:
+    image: mcr.microsoft.com/mssql/server:latest
+    container_name: sqlserver2
+    environment:
+      SA_PASSWORD: "@Un1cr3D"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "15786:1433"
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.6
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "14250:14250"
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+      - "9411:9411"
