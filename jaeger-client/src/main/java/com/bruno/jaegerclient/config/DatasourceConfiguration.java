@@ -2,17 +2,13 @@ package com.bruno.jaegerclient.config;
 
 import com.bruno.jaegerclient.routing.UnicredDataSourceRouting;
 import com.zaxxer.hikari.HikariDataSource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.sql.DataSource;
+import one.util.streamex.EntryStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,44 +18,50 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 @Configuration
 public class DatasourceConfiguration {
-
-
   private static final Logger LOGGER = LoggerFactory.getLogger(DatasourceConfiguration.class);
-
   private static final String SCHEMA_POSTGRES = "schema-postgres.sql";
-
   private static final String PREFIX_POSTGRES = "ds";
-
   private static final String NOME_ARQUIVO_POSTGRES = "-datapostgres.sql";
-
   private static final String SCHEMA_SQLSERVER = "schema-sqlserver.sql";
+  private static final String PREFIX_SQLSERVER = "sqlserver";
+  private static final String NOME_ARQUIVO_SQLSERVER = "-data-sqlserver.sql";
 
-  private static final String PREFIX_SQLSERVER = "sqlServer";
-
-  private static final String NOME_ARQUIVOSQLSERVER = "-data-sqlserver.sql";
-
+  @Value("${service.postgres.db1.port}")
+  private int POSTGRES_DB1_PORT;
+  @Value("${service.postgres.db2.port}")
+  private int POSTGRES_DB2_PORT;
+  @Value("${service.sqlserver.sqlserver1.port}")
+  private int SQLSERVER_SS1_PORT;
+  @Value("${service.sqlserver.sqlserver2.port}")
+  private int SQLSERVER_SS2_PORT;
+  @Value("${service.postgres.db.user}")
+  private String POSTGRES_DB_USER;
+  @Value("${service.postgres.db.pass}")
+  private String POSTGRES_DB_PASS;
+  @Value("${service.sqlserver.db.user}")
+  private String SQLSERVER_DB_USER;
+  @Value("${service.sqlserver.db.pass}")
+  private String SQLSERVER_DB_PASS;
 
     @Bean
     @Primary
     DataSource loadDataSources(Map <String, DataSource> dataSources) {
 
-      var mapPostgres = getDSByPrefix(PREFIX_POSTGRES, SCHEMA_POSTGRES, NOME_ARQUIVO_POSTGRES, dataSources);
-      var mapSQlServer = getDSByPrefix(PREFIX_SQLSERVER, SCHEMA_SQLSERVER, NOME_ARQUIVOSQLSERVER, dataSources);
+      var mapPostgres = getDataSourceByPrefixSchemaExt(
+                                              PREFIX_POSTGRES, SCHEMA_POSTGRES, NOME_ARQUIVO_POSTGRES, dataSources);
+      var mapSQlServer = getDataSourceByPrefixSchemaExt(
+                                              PREFIX_SQLSERVER, SCHEMA_SQLSERVER, NOME_ARQUIVO_SQLSERVER, dataSources);
 
-      List<Map<Object, Object>> totalDS = new ArrayList<>();
-      totalDS.add(mapPostgres);
+      Map<Object, Object> mapTotal = EntryStream.of(mapPostgres)
+          .append(EntryStream.of(mapSQlServer))
+          .toMap((e1, e2) -> e1);
 
       var uds = new UnicredDataSourceRouting();
-      uds.setTargetDataSources(totalDS.stream()
-                              .reduce((mapPS, mapSQL) -> {
-                                mapPostgres.putAll(mapSQlServer);
-                                return mapPS;
-                              }).orElse(null));
+      uds.setTargetDataSources(mapTotal);
       return uds;
-
   }
-
-  private  Map<Object, Object> getDSByPrefix(String prefix, String schema, String extNomeArquivo, Map <String, DataSource> dataSource){
+  private  Map<Object, Object> getDataSourceByPrefixSchemaExt(String prefix, String schema, String extNomeArquivo,
+                                                      Map <String, DataSource> dataSource){
     var map = dataSource
         .entrySet()
         .stream()
@@ -68,36 +70,29 @@ public class DatasourceConfiguration {
             e -> (Object) Integer.parseInt(e.getKey().substring(prefix.length())),
             e -> (Object) e.getValue()
         ));
-
-    map.forEach((tenantId, ds) -> {
-      var starter = new ResourceDatabasePopulator(new ClassPathResource(schema) ,
-          new ClassPathResource(prefix + tenantId + extNomeArquivo));
-      starter.execute((DataSource) ds);
-      LOGGER.info("Inicializando dataSource: {} ", tenantId);
-    });
+        map.forEach((tenantId, ds) -> {
+          var starter = new ResourceDatabasePopulator(new ClassPathResource(schema) ,
+              new ClassPathResource(prefix + tenantId + extNomeArquivo));
+          starter.execute((DataSource) ds);
+          LOGGER.info("Inicializando dataSource: {} ", tenantId);
+        });
     return map;
-
   }
-
     @Bean
     DataSource ds1(){
-    return dataSourcePostgres(5431, "user", "pw");
+    return dataSourcePostgres(POSTGRES_DB1_PORT, POSTGRES_DB_USER, POSTGRES_DB_PASS);
   }
-
     @Bean
     DataSource ds2(){
-    return dataSourcePostgres(5432, "user", "pw");
+    return dataSourcePostgres(POSTGRES_DB2_PORT, POSTGRES_DB_USER, POSTGRES_DB_PASS);
   }
-
-
     @Bean
-    DataSource sqlServer1(){
-      return dataSourceSQLServer(15785);
+    DataSource sqlserver3(){
+      return dataSourceSQLServer(SQLSERVER_SS1_PORT,SQLSERVER_DB_USER, SQLSERVER_DB_PASS);
     }
-
     @Bean
-    DataSource sqlServer2(){
-      return dataSourceSQLServer(15786);
+    DataSource sqlserver4(){
+      return dataSourceSQLServer(SQLSERVER_SS2_PORT,SQLSERVER_DB_USER, SQLSERVER_DB_PASS);
     }
 
     private static DataSource dataSourcePostgres(int port, String user, String pass) {
@@ -110,16 +105,15 @@ public class DatasourceConfiguration {
         .build();
   }
 
-  private static DataSource dataSourceSQLServer(int port) {
+  private static DataSource dataSourceSQLServer(int port, String user, String pass) {
     var dsp = new DataSourceProperties();
-    dsp.setPassword("@Un1cr3D");
-    dsp.setUsername("sa");
+    dsp.setPassword(pass);
+    dsp.setUsername(user);
     dsp.setUrl("jdbc:sqlserver://localhost:" + port +
                       "; DatabaseName=master; encrypt=true;trustServerCertificate=true");
     return dsp.initializeDataSourceBuilder()
         .type(HikariDataSource.class)
         .build();
   }
-
 
 }

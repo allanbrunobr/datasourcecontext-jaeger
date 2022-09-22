@@ -35,7 +35,7 @@ class SecurityConfiguration {
     var os = createUser("osilva", "pw",2);
     var coop4022 = createUser("coop4022","@Un1cr3D", 3);
     var coop505 = createUser("coop505", "@Un1cr3D", 4);
-    var users = Stream.of(os, ab, coop4022, coop505)
+    var users = Stream.of(ab, os, coop4022, coop505)
         .collect(Collectors.toMap(User::getUsername, u -> u));
     return username -> {
       var user = users.getOrDefault( username, null);

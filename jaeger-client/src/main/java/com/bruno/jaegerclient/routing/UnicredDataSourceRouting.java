@@ -9,12 +9,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class UnicredDataSourceRouting extends AbstractRoutingDataSource {
 
-  private final AtomicBoolean inicializado = new AtomicBoolean();
+  private final AtomicBoolean started = new AtomicBoolean();
 
   @NotNull
   @Override
   protected DataSource determineTargetDataSource() {
-    if(this.inicializado.compareAndSet(false, true)) {
+    if(this.started.compareAndSet(false, true)) {
       this.afterPropertiesSet();
     }
     return super.determineTargetDataSource();
